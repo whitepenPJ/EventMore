@@ -1,0 +1,152 @@
+<script src="jquery-1.8.2.min.js"></script>
+<script>
+	var _month;
+	var _year;
+	$(function(){
+		_month = new Date().getMonth();
+		_year = new Date().getFullYear();
+		CreateDDLYear(_year);
+		CreateCalendar();
+		$(".contain-header")
+			.find(".next")
+			.bind("click",function(){
+				if(_month<11) _month += 1;
+				else
+				{
+					_month = 0;
+					_year += 1;
+				}
+				CreateCalendar();
+			})
+			.end()
+			.find(".previous")
+			.bind("click",function(){
+				if(_month>0) _month -= 1;
+				else
+				{
+					_month = 11;
+					_year -= 1;
+				}
+				CreateCalendar();
+			});
+	});
+	
+	function CreateDDLYear(currentYear)
+	{
+		var currentYear = currentYear;
+		for(i=currentYear-100;i<currentYear+100;i++)
+		{
+			$option = $("<option></option>").attr("value",i).text(i);			
+			$("#ddlYear").append($option);
+		}
+	}
+	
+	function CreateCalendar(){
+		$("ul.contain-detail li.calendar-detail").remove();
+		$calendarDetail = $("<li>");
+		$calendarDetail.addClass("calendar-detail");
+		$calendarDetail.addClass("calendar");
+		
+		var dateArray = GetDateArray(_month,_year);
+		$.each(dateArray,function(index,value){
+			$mycal = $calendarDetail.clone();
+			$mycal.text(value.Date);
+			$("ul.contain-detail").append($mycal);
+		});
+		$("#ddlMonth option").removeAttr("selected").eq(_month).attr("selected","selected");
+		$("#ddlYear option").removeAttr("selected").filter(function(){ return this.value == _year;}).attr("selected","selected");
+	}
+	
+	function GetDateArray(month,year)
+	{
+		var currentEndDate = new Date(year,month+1,0);
+		var currentStartDate = new Date(year,month,1);
+		var nextMonth = new Date(year,month+1,1);
+		var prevMonth = new Date(year,month,0);
+		var dateArray = [];				
+		var currentDay = currentStartDate.getDay();
+		
+		var prevDay = prevMonth.getDay();
+		var prevLastDay = prevMonth.getDate();
+		if(prevDay!=6)
+		{
+			for(i=prevDay;i>=0;i--)
+			{
+				var date = [];
+				date["Date"] = prevLastDay--;
+				date["Day"] = i;
+				date["Current"] = false;
+				dateArray.push(date);
+			}			
+		}
+		dateArray = dateArray.reverse();
+		
+		for(i=1;i<=currentEndDate.getDate();i++)
+		{
+			var date = [];
+			date["Date"] = i;
+			date["Day"] = currentDay;
+			date["Current"] = true;
+			dateArray.push(date);			
+			currentDay = (currentDay>=6) ? 0 : (currentDay+1);
+		}
+		
+		var nextDay = nextMonth.getDay();
+		var nextFirstDay = nextMonth.getDate();
+		if(nextDay!=0)
+		{		
+			for(i=nextDay;i<7;i++)
+			{
+				var date = [];
+				date["Date"] = nextFirstDay++;
+				date["Day"] = i;
+				date["Current"] = false;
+				dateArray.push(date);				
+			}			
+		}
+		return dateArray;
+	}
+</script>
+<style>
+	ul.contain-header{height:20px;}
+	ul.contain-detail{list-style:none;margin:0px;padding:0px;width:1070px;}
+	li.calendar{width:150px;border:1px solid black;display:inline-block;margin:0px;padding:0px;float:left;}
+	li.calendar-header{height:30px;text-align:center;line-height:30px;}
+	li.calendar-detail{height:150px;}
+	.control{border:1px solid black;display:inline-block;}
+	.control.previous, .control.next{width:20%;cursor:pointer;}
+	.control.center{width:50%;}
+</style>
+<div class="contain-header">
+	<div class="control previous"><=previous</div>
+	<div class="control center">
+		<label for="ddlMonth"><span>Month : </span></label>
+		<select id="ddlMonth">
+			<option>January</option>
+			<option>February</option>
+			<option>March</option>
+			<option>April</option>
+			<option>May</option>
+			<option>June</option>
+			<option>July</option>
+			<option>August</option>
+			<option>September</option>
+			<option>Octorber</option>
+			<option>November</option>
+			<option>December</option>
+		</select>
+		<label for="ddlYear"><span>Year : </span></label>
+		<select id="ddlYear">			
+		</select>
+	</div>
+	<div class="control next">next=></div>
+</div>
+<ul class="contain-detail">
+	<li class="calendar calendar-header">Sunday</li>
+	<li class="calendar calendar-header">Monday</li>
+	<li class="calendar calendar-header">Tuesday</li>
+	<li class="calendar calendar-header">Wednesday</li>
+	<li class="calendar calendar-header">Thurday</li>
+	<li class="calendar calendar-header">Friday</li>
+	<li class="calendar calendar-header">Saturday</li>
+</ul>
